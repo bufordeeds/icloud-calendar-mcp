@@ -1,40 +1,41 @@
 # iCloud Calendar MCP Server
 
-A local MCP server that connects to Apple Calendar via CalDAV (iCloud).
+A local [MCP](https://modelcontextprotocol.io/) server for interacting with Apple Calendar via CalDAV, built with [FastMCP](https://github.com/jlowin/fastmcp).
 
 ## Setup
 
-1. Generate an app-specific password at [appleid.apple.com](https://appleid.apple.com) under Sign-In and Security > App-Specific Passwords.
+1. Clone the repo and create a virtual environment:
 
-2. Create your `.env` file:
-   ```bash
-   cp .env.example .env
-   ```
-   Fill in your Apple ID email and app-specific password.
+```bash
+git clone https://github.com/bufordeeds/icloud-calendar-mcp.git
+cd icloud-calendar-mcp
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-3. Create a virtual environment and install dependencies:
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   pip install -r requirements.txt
-   ```
+2. Copy `.env.example` to `.env` and fill in your credentials:
 
-4. Run the server:
-   ```bash
-   source .venv/bin/activate
-   python server.py
-   ```
+```bash
+cp .env.example .env
+```
 
-## Claude Desktop Configuration
+You need an **app-specific password** from [appleid.apple.com](https://appleid.apple.com/) under Sign-In and Security > App-Specific Passwords.
 
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+3. Add to Claude Code (user scope so it's available everywhere):
+
+```bash
+claude mcp add -s user --transport stdio icloud-calendar -- /path/to/icloud-calendar-mcp/.venv/bin/python /path/to/icloud-calendar-mcp/server.py
+```
+
+Or add to Claude Desktop config (`claude_desktop_config.json`):
 
 ```json
 {
   "mcpServers": {
     "icloud-calendar": {
-      "command": "/Users/buford/dev/tools/icloud-calendar-mcp/.venv/bin/python",
-      "args": ["/Users/buford/dev/tools/icloud-calendar-mcp/server.py"]
+      "command": "/path/to/icloud-calendar-mcp/.venv/bin/python",
+      "args": ["/path/to/icloud-calendar-mcp/server.py"]
     }
   }
 }
@@ -42,10 +43,19 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Tools
 
-- **list_calendars** — list all calendars
-- **list_events** — list events from a calendar within a date range
-- **get_event** — get full details of a specific event by UID
-- **create_event** — create a new event
-- **update_event** — update an existing event by UID
-- **delete_event** — delete an event by UID
-- **search_events** — search events across all calendars by text query
+| Tool | Description |
+|------|-------------|
+| `list_calendars` | List all calendars with name, URL, and color |
+| `list_events` | List events from a calendar within a date range |
+| `get_event` | Get full details of a specific event by UID |
+| `create_event` | Create a new event |
+| `update_event` | Update an existing event by UID |
+| `delete_event` | Delete an event by UID |
+| `search_events` | Search events across all calendars by text query |
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ICLOUD_EMAIL` | Your iCloud email address |
+| `ICLOUD_APP_PASSWORD` | App-specific password from Apple ID settings |
